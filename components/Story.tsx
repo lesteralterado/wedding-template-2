@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
 import SectionHeader from "./SectionHeader";
 
@@ -22,7 +22,7 @@ const stories = [
 
 export default function Story() {
   return (
-    <section id="story" className="py-24 md:py-32 relative">
+    <section id="story" className="py-24 md:py-32 relative" style={{ perspective: "1000px" }}>
       {/* Top Line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
@@ -46,22 +46,55 @@ function StoryCard({
   story: { year: string; title: string; text: string; image: string };
   index: number;
 }) {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  
+  // 3D Tilt effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const mouseX = useSpring(x, { damping: 20, stiffness: 300 });
+  const mouseY = useSpring(y, { damping: 20, stiffness: 300 });
+  
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      const xPct = (e.clientX - rect.left) / rect.width - 0.5;
+      const yPct = (e.clientY - rect.top) / rect.height - 0.5;
+      x.set(xPct * 20); // Max rotation in degrees
+      y.set(yPct * 20);
+    }
+  }
+  
+  function onMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
 
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-      transition={{ duration: 0.8, delay: index * 0.2, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 1, delay: index * 0.2, ease: [0.4, 0, 0.2, 1] }}
       className={`${index % 2 === 1 ? "md:mt-16" : ""}`}
+      style={{ perspective: "1000px" }}
     >
-      <div className="relative mb-8 overflow-hidden group">
+      <motion.div
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        style={{ 
+          rotateX: mouseY,
+          rotateY: mouseX,
+          transformStyle: "preserve-3d"
+        }}
+        className="relative mb-8 overflow-hidden group cursor-pointer"
+      >
         <motion.div
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.6 }}
           className="relative aspect-[3/4]"
+          style={{ transformStyle: "preserve-3d" }}
         >
           <Image
             src={story.image}
@@ -70,9 +103,13 @@ function StoryCard({
             className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-600"
           />
         </motion.div>
-        {/* Frame */}
-        <div className="absolute top-4 left-4 right-4 bottom-4 border border-accent/50 pointer-events-none group-hover:top-6 group-hover:left-6 group-hover:right-6 group-hover:bottom-6 transition-all duration-500" />
-      </div>
+        
+        {/* Frame with 3D effect */}
+        <motion.div
+          className="absolute top-4 left-4 right-4 bottom-4 border border-accent/50 pointer-events-none group-hover:top-6 group-hover:left-6 group-hover:right-6 group-hover:bottom-6 transition-all duration-500"
+          style={{ transform: "translateZ(20px)" }}
+        />
+      </motion.div>
 
       <div className="text-center md:text-left">
         <span className="font-script text-3xl text-accent block mb-2">

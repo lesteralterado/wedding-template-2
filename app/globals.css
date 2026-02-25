@@ -12,6 +12,7 @@ body {
   background-color: #f8f6f3;
   color: #2d2a26;
   font-family: var(--font-montserrat);
+  overflow-x: hidden;
 }
 
 /* Custom scrollbar */
@@ -41,4 +42,94 @@ html {
 ::selection {
   background: #b8963a;
   color: #ffffff;
+}
+
+/* 3D Transform Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.transform-3d-center {
+  transform: translateZ(0);
+}
+
+/* Smooth entrance animations */
+@keyframes fadeInUp3D {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) rotateX(-20deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+@keyframes scaleIn3D {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(100px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes float3D {
+  0%, 100% {
+    transform: translateY(0) rotateX(0) rotateY(0);
+  }
+  25% {
+    transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+  }
+  50% {
+    transform: translateY(0) rotateX(0) rotateY(0);
+  }
+  75% {
+    transform: translateY(10px) rotateX(-5deg) rotateY(-5deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fadeInUp3D {
+  animation: fadeInUp3D 1s ease-out forwards;
+}
+
+.animate-scaleIn3D {
+  animation: scaleIn3D 1.2s ease-out forwards;
+}
+
+.animate-float3D {
+  animation: float3D 6s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(184, 150, 58, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Smooth page transitions */
+* {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

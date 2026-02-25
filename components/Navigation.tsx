@@ -40,7 +40,7 @@ export default function Navigation() {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const element = document.querySelector(href);
+    const element = document.querySelector(href) as HTMLElement | null;
     if (element) {
       const offsetTop = element.offsetTop - 80;
       window.scrollTo({ top: offsetTop, behavior: "smooth" });
@@ -49,9 +49,24 @@ export default function Navigation() {
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
+      initial={{ 
+        y: -100,
+        scale: 5,
+        opacity: 0,
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50
+      }}
+      animate={{ 
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        position: "fixed",
+        top: 0
+      }}
+      transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1], delay: 2.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-background/95 backdrop-blur-xl py-4 shadow-lg shadow-black/20"

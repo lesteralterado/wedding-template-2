@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { Church, Calendar } from "lucide-react";
 import SectionHeader from "./SectionHeader";
@@ -27,45 +27,96 @@ export default function Events() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="events" className="py-24 md:py-32 relative bg-gradient-to-b from-background via-card-bg/30 to-background">
+    <section id="events" className="py-24 md:py-32 relative bg-gradient-to-b from-background via-card-bg/30 to-background" style={{ perspective: "1000px" }}>
       <div className="max-w-6xl mx-auto px-6">
         <SectionHeader tag="Join Us" title="Wedding Events" />
 
         <div ref={ref} className="grid md:grid-cols-2 gap-8">
           {events.map((event, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.6, delay: index * 0.15, ease: [0.4, 0, 0.2, 1] }}
-              whileHover={{ y: -10 }}
-              className="bg-card-bg/50 border border-accent/10 p-10 text-center relative overflow-hidden group"
-            >
-              {/* Top Line Animation */}
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.15 + 0.3 }}
-                className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent origin-left"
-              />
-
-              <div className="text-accent mb-6 flex justify-center">
-                <event.icon size={48} strokeWidth={1.5} />
-              </div>
-
-              <h3 className="font-heading text-2xl md:text-3xl mb-4 tracking-wide">
-                {event.title}
-              </h3>
-
-              <div className="space-y-2">
-                <p className="text-xl text-accent font-medium">{event.time}</p>
-                <p className="font-heading text-lg">{event.venue}</p>
-                <p className="text-text-secondary text-sm">{event.address}</p>
-              </div>
-            </motion.div>
+            <EventCard key={index} event={event} index={index} isInView={isInView} />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function EventCard({
+  event,
+  index,
+  isInView,
+}: {
+  event: { icon: typeof Church; title: string; time: string; venue: string; address: string };
+  index: number;
+  isInView: boolean;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // 3D Tilt effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const mouseX = useSpring(x, { damping: 20, stiffness: 300 });
+  const mouseY = useSpring(y, { damping: 20, stiffness: 300 });
+  
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (rect) {
+      const xPct = (e.clientX - rect.left) / rect.width - 0.5;
+      const yPct = (e.clientY - rect.top) / rect.height - 0.5;
+      x.set(xPct * 15);
+      y.set(yPct * 15);
+    }
+  }
+  
+  function onMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{ 
+        rotateX: mouseY,
+        rotateY: mouseX,
+        transformStyle: "preserve-3d"
+      }}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 1, delay: index * 0.2, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={{ y: -10 }}
+      className="bg-card-bg/50 border border-accent/10 p-10 text-center relative overflow-hidden group cursor-pointer"
+    >
+      {/* Top Line Animation */}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+        transition={{ duration: 0.8, delay: index * 0.2 + 0.3 }}
+        className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent origin-left"
+      />
+
+      <motion.div
+        style={{ transform: "translateZ(30px)" }}
+        className="text-accent mb-6 flex justify-center"
+      >
+        <event.icon size={48} strokeWidth={1.5} />
+      </motion.div>
+
+      <motion.h3
+        style={{ transform: "translateZ(20px)" }}
+        className="font-heading text-2xl md:text-3xl mb-4 tracking-wide"
+      >
+        {event.title}
+      </motion.h3>
+
+      <motion.div style={{ transform: "translateZ(10px)" }} className="space-y-2">
+        <p className="text-xl text-accent font-medium">{event.time}</p>
+        <p className="font-heading text-lg">{event.venue}</p>
+        <p className="text-text-secondary text-sm">{event.address}</p>
+      </motion.div>
+    </motion.div>
   );
 }
