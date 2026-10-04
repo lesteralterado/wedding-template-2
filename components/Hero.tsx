@@ -97,6 +97,10 @@ export default function Hero() {
             <RevealLine revealed={revealed} baseDelay={baseDelay} step={2}>Lester</RevealLine>
           </h1>
 
+          <RevealLine revealed={revealed} baseDelay={baseDelay} step={2.6} className="w-[46cqw] max-w-[220px] -mt-[1cqh] mb-[1.5cqh]">
+            <Image src="/floral/swag.webp" alt="" width={640} height={170} unoptimized className="w-full h-auto" />
+          </RevealLine>
+
           <RevealLine revealed={revealed} baseDelay={baseDelay} step={3} className="flex items-center justify-center gap-3 mb-2">
             <span className="w-8 h-px bg-gradient-to-r from-transparent to-accent" />
             <span className="font-heading text-lg tracking-[0.2em] text-text-secondary">

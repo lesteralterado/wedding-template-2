@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
 import SectionHeader from "./SectionHeader";
+import Floral from "./Floral";
 
 const stories = [
   {
@@ -26,7 +27,7 @@ export default function Story() {
     // The gradient softens where the artwork's top edge meets the plain cream.
     <section
       id="story"
-      className="pt-24 md:pt-32 pb-[38vw] relative"
+      className="pt-24 md:pt-32 pb-[38vw] relative overflow-x-clip"
       style={{
         perspective: "1000px",
         backgroundColor: "#f4eadc",
@@ -40,7 +41,11 @@ export default function Story() {
       {/* Top Line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
-      <div className="max-w-6xl mx-auto px-6">
+      {/* Corner sprays frame the top of the section */}
+      <Floral variant="corner-left" className="absolute top-0 left-0 w-[30vw] max-w-[280px]" />
+      <Floral variant="corner-right" delay={0.2} className="absolute top-0 right-0 w-[30vw] max-w-[280px]" />
+
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
         <SectionHeader tag="Our Love Story" title="How We Met" />
 
         <div className="grid md:grid-cols-2 gap-12 md:gap-16">

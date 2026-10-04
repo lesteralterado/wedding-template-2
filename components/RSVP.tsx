@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef } from "react";
-import { ArrowRight, Check, Heart } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import SectionHeader from "./SectionHeader";
+import Floral from "./Floral";
 
 export default function RSVP() {
   const [formData, setFormData] = useState({
@@ -76,17 +77,11 @@ export default function RSVP() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="text-center py-8"
               >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="w-20 h-20 bg-gradient-to-br from-accent to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6"
-                >
-                  <Check size={40} className="text-background" />
-                </motion.div>
+                {/* A bouquet as a thank-you */}
+                <Floral variant="bouquet" delay={0.2} className="w-28 mx-auto mb-6" />
                 <h3 className="font-heading text-3xl mb-4">Thank You!</h3>
                 <p className="text-text-secondary mb-6">
-                  Your response has been received. We can't wait to celebrate with you!
+                  Your response has been received. We can&apos;t wait to celebrate with you!
                 </p>
                 
                 {/* Animated Hearts */}

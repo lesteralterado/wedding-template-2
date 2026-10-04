@@ -4,6 +4,7 @@ import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { Church, Calendar } from "lucide-react";
 import SectionHeader from "./SectionHeader";
+import Floral from "./Floral";
 
 const events = [
   {
@@ -117,7 +118,11 @@ function EventCard({
         style={{ transform: "translateZ(30px)" }}
         className="text-accent mb-6 flex justify-center"
       >
-        <event.icon size={48} strokeWidth={1.5} />
+        {/* Icon sits inside a flower wreath */}
+        <div className="relative w-32 h-32 flex items-center justify-center">
+          <Floral variant="wreath" delay={index * 0.2 + 0.2} className="absolute inset-0" />
+          <event.icon size={36} strokeWidth={1.5} className="relative" />
+        </div>
       </motion.div>
 
       <motion.h3

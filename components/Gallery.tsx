@@ -5,6 +5,7 @@ import { motion, useInView, AnimatePresence, useMotionValue, useSpring } from "f
 import { useRef, useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import SectionHeader from "./SectionHeader";
+import Floral from "./Floral";
 
 const images = [
   "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=600&fit=crop",
@@ -65,8 +66,12 @@ export default function Gallery() {
   }, [selectedImage]);
 
   return (
-    <section id="gallery" className="py-24 md:py-32 relative" style={{ perspective: "1000px" }}>
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="gallery" className="py-24 md:py-32 relative overflow-x-clip" style={{ perspective: "1000px" }}>
+      {/* Corner sprays frame the top of the section */}
+      <Floral variant="corner-left" className="absolute top-0 left-0 w-[30vw] max-w-[280px]" />
+      <Floral variant="corner-right" delay={0.2} className="absolute top-0 right-0 w-[30vw] max-w-[280px]" />
+
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
         <SectionHeader tag="Memories" title="Our Gallery" />
 
         <div ref={ref} className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">

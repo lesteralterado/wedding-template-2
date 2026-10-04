@@ -1,6 +1,7 @@
 "use client";
 
 import ScrollReveal from "./ScrollReveal";
+import Floral from "./Floral";
 
 interface SectionHeaderProps {
   tag: string;
@@ -16,11 +17,7 @@ export default function SectionHeader({ tag, title }: SectionHeaderProps) {
       <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-normal mb-5 tracking-wide">
         {title}
       </h2>
-      <div className="flex items-center justify-center gap-4">
-        <span className="w-12 h-px bg-gradient-to-r from-transparent to-accent" />
-        <span className="text-accent">♥</span>
-        <span className="w-12 h-px bg-gradient-to-l from-transparent to-accent" />
-      </div>
+      <Floral variant="swag" delay={0.3} className="w-44 md:w-56 mx-auto" />
     </ScrollReveal>
   );
 }
