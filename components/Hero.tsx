@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState, useEffect, type ReactNode } from "react";
 import { EASE_SOFT, REVEAL_DELAY, STAGE_CLASS, useIntro } from "./IntroGate";
 
-const WEDDING_DATE = "2026-09-15T15:00:00";
+const WEDDING_DATE = "2027-07-15T15:00:00";
 
 interface CountdownTime {
   days: number;
