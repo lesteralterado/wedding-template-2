@@ -52,8 +52,21 @@ export default function RSVP() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          className="bg-card-bg/50 border border-accent/10 p-8 md:p-12"
+          className="relative px-[13%] pt-[24%] pb-[12%] md:pt-[20%]"
         >
+          {/* Decorative frame (stretches to fit the form) */}
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-[url('/rsvp/frame.svg')] bg-[length:100%_100%] bg-no-repeat pointer-events-none"
+          />
+          {/* Flower bouquet overlapping the top-left corner; margin % is relative to width, keeping its position proportional */}
+          <img
+            src="/rsvp/flower.svg"
+            alt=""
+            aria-hidden
+            className="absolute top-0 left-0 w-[26%] -mt-[5%] -ml-[9%] pointer-events-none select-none z-10"
+          />
+          <div className="relative">
           <AnimatePresence mode="wait">
             {submitted ? (
               <motion.div
@@ -275,6 +288,7 @@ export default function RSVP() {
               </motion.form>
             )}
           </AnimatePresence>
+          </div>
         </motion.div>
       </div>
     </section>

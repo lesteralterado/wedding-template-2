@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useState, useEffect } from "react";
 import LetterReveal from "./LetterReveal";
 import LogoReveal from "./LogoReveal";
+import { useIntroDone } from "./IntroGate";
 
 const WEDDING_DATE = "2026-09-15T15:00:00";
 
@@ -22,6 +23,7 @@ export default function Hero() {
     seconds: 0,
   });
   const [showContent, setShowContent] = useState(false);
+  const introDone = useIntroDone();
   
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 150]);
@@ -31,12 +33,13 @@ export default function Hero() {
   const rotateX = useTransform(scrollY, [0, 500], [0, 30]);
 
   useEffect(() => {
-    // Start content animation after logo reveal completes
+    // Start content animation after logo reveal completes (the reveal waits for the intro gate)
+    if (!introDone) return;
     const timer = setTimeout(() => {
       setShowContent(true);
     }, 2500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [introDone]);
 
   useEffect(() => {
     const weddingDate = new Date(WEDDING_DATE);
@@ -67,9 +70,11 @@ export default function Hero() {
       style={{ perspective: "1000px" }}
     >
       {/* Logo Reveal Animation - Shows first */}
-      <LogoReveal>
-        <span className="font-script text-2xl text-accent tracking-widest">S & A</span>
-      </LogoReveal>
+      {introDone && (
+        <LogoReveal>
+          <span className="font-script text-2xl text-accent tracking-widest">S & A</span>
+        </LogoReveal>
+      )}
 
       {/* Main Content - Shows after logo reveal */}
       {showContent && (
