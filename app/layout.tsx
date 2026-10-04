@@ -25,7 +25,7 @@ const greatVibes = Great_Vibes({
 
 export const metadata: Metadata = {
   title: "Cherilyn & Lester | Wedding",
-  description: "Join us to celebrate our special day on September 15, 2026",
+  description: "Join us to celebrate our special day on February 07, 2027",
 };
 
 export default function RootLayout({

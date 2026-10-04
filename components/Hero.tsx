@@ -100,7 +100,7 @@ export default function Hero() {
           <RevealLine revealed={revealed} baseDelay={baseDelay} step={3} className="flex items-center justify-center gap-3 mb-2">
             <span className="w-8 h-px bg-gradient-to-r from-transparent to-accent" />
             <span className="font-heading text-lg tracking-[0.2em] text-text-secondary">
-              September 15, 2026
+              February 07, 2027
             </span>
             <span className="w-8 h-px bg-gradient-to-l from-transparent to-accent" />
           </RevealLine>

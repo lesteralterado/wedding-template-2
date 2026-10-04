@@ -27,7 +27,7 @@ export default function Footer() {
           </p>
 
           <div className="font-script text-2xl text-accent">
-            September 15, 2026
+            February 07, 2027
           </div>
         </motion.div>
       </div>
