@@ -17,9 +17,9 @@ export default function Footer() {
           className="space-y-6"
         >
           <div className="flex items-center justify-center gap-4 md:gap-6 flex-wrap">
-            <span className="font-heading text-2xl md:text-3xl">Sophia</span>
+            <span className="font-heading text-2xl md:text-3xl">Cherilyn</span>
             <span className="font-script text-xl text-accent">&</span>
-            <span className="font-heading text-2xl md:text-3xl">Alexander</span>
+            <span className="font-heading text-2xl md:text-3xl">Lester</span>
           </div>
 
           <p className="text-text-secondary italic">

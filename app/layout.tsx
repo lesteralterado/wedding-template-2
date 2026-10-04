@@ -24,7 +24,7 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Sophia & Alexander | Wedding",
+  title: "Cherilyn & Lester | Wedding",
   description: "Join us to celebrate our special day on September 15, 2026",
 };
 

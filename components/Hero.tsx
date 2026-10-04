@@ -90,11 +90,11 @@ export default function Hero() {
           </RevealLine>
 
           <h1 className="font-script font-normal text-text-primary leading-[1.05] my-[2.5cqh] text-[min(14cqw,7.5cqh)]">
-            <RevealLine revealed={revealed} baseDelay={baseDelay} step={1}>Sophia</RevealLine>
+            <RevealLine revealed={revealed} baseDelay={baseDelay} step={1}>Cherilyn</RevealLine>
             <RevealLine revealed={revealed} baseDelay={baseDelay} step={1.5} className="text-accent text-[0.6em] my-1">
               &amp;
             </RevealLine>
-            <RevealLine revealed={revealed} baseDelay={baseDelay} step={2}>Alexander</RevealLine>
+            <RevealLine revealed={revealed} baseDelay={baseDelay} step={2}>Lester</RevealLine>
           </h1>
 
           <RevealLine revealed={revealed} baseDelay={baseDelay} step={3} className="flex items-center justify-center gap-3 mb-2">

@@ -9,13 +9,13 @@ const stories = [
   {
     year: "2020",
     title: "First Meeting",
-    text: "It was a rainy afternoon at a small coffee shop in Brooklyn. Sophia was reading her favorite book when Alexander accidentally spilled his coffee. That moment sparked a conversation that lasted for hours, and neither of them wanted it to end.",
+    text: "It was a rainy afternoon at a small coffee shop in Brooklyn. Cherilyn was reading her favorite book when Lester accidentally spilled his coffee. That moment sparked a conversation that lasted for hours, and neither of them wanted it to end.",
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=800&fit=crop",
   },
   {
     year: "2022",
     title: "The Proposal",
-    text: "On a perfect summer evening, Alexander arranged a private dinner on the rooftop where they had their first date. Under the stars and surrounded by fairy lights, he got down on one knee. Sophia said yes before he could even finish the question.",
+    text: "On a perfect summer evening, Lester arranged a private dinner on the rooftop where they had their first date. Under the stars and surrounded by fairy lights, he got down on one knee. Cherilyn said yes before he could even finish the question.",
     image: "https://images.unsplash.com/photo-1511285560982-1356c11d4606?w=600&h=800&fit=crop",
   },
 ];
