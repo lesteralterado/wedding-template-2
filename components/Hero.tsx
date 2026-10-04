@@ -1,10 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { useState, useEffect } from "react";
-import LetterReveal from "./LetterReveal";
-import LogoReveal from "./LogoReveal";
-import { useIntroDone } from "./IntroGate";
+import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
+import { useState, useEffect, type ReactNode } from "react";
+import { EASE_SOFT, REVEAL_DELAY, STAGE_CLASS, useIntro } from "./IntroGate";
 
 const WEDDING_DATE = "2026-09-15T15:00:00";
 
@@ -22,24 +21,9 @@ export default function Hero() {
     minutes: 0,
     seconds: 0,
   });
-  const [showContent, setShowContent] = useState(false);
-  const introDone = useIntroDone();
-  
-  const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 150]);
-  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  const scale = useTransform(scrollY, [0, 300], [1, 0.9]);
-  const rotateX = useTransform(scrollY, [0, 500], [0, 30]);
-
-  useEffect(() => {
-    // Start content animation after logo reveal completes (the reveal waits for the intro gate)
-    if (!introDone) return;
-    const timer = setTimeout(() => {
-      setShowContent(true);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, [introDone]);
+  const { revealed, done } = useIntro();
+  const reduceMotion = useReducedMotion();
+  const baseDelay = reduceMotion ? 0.3 : REVEAL_DELAY;
 
   useEffect(() => {
     const weddingDate = new Date(WEDDING_DATE);
@@ -64,211 +48,137 @@ export default function Hero() {
   }, []);
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ perspective: "1000px" }}
-    >
-      {/* Logo Reveal Animation - Shows first */}
-      {introDone && (
-        <LogoReveal>
-          <span className="font-script text-2xl text-accent tracking-widest">S & A</span>
-        </LogoReveal>
-      )}
+    <section id="hero" className="relative h-[100svh] overflow-hidden bg-[#f4ebdf]">
+      {/* Larger screens: blurred arch fills the space around the portrait stage */}
+      <div aria-hidden className="absolute inset-0 hidden md:block">
+        <Image
+          src="/intro/arch.webp"
+          alt=""
+          fill
+          unoptimized
+          sizes="100vw"
+          className="object-cover scale-110 blur-2xl opacity-80"
+        />
+        <div className="absolute inset-0 bg-[#f3ece1]/40" />
+      </div>
 
-      {/* Main Content - Shows after logo reveal */}
-      {showContent && (
-        <>
-          {/* Parallax Background Elements */}
-          <motion.div 
-            style={{ y: y1 }}
-            className="absolute inset-0 bg-gradient-to-b from-background via-primary/50 to-background" 
+      <div className={`${STAGE_CLASS} overflow-hidden [container-type:size] md:shadow-[0_0_80px_rgba(59,47,32,0.25)]`}>
+        {/* The arch eases back into place as the doors open, like stepping through them */}
+        <motion.div
+          className="absolute inset-0"
+          initial={false}
+          animate={{ scale: revealed && !reduceMotion ? 1 : 1.12 }}
+          transition={{ duration: 3, delay: 0.45, ease: EASE_SOFT }}
+        >
+          <Image
+            src="/intro/arch.webp"
+            alt=""
+            fill
+            preload
+            unoptimized
+            sizes="100vw"
+            className="object-cover"
           />
-          <motion.div 
-            style={{ y: y2 }}
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(212,175,55,0.08)_0%,transparent_50%),radial-gradient(ellipse_at_80%_20%,rgba(22,33,62,0.5)_0%,transparent_50%)]" 
-          />
+        </motion.div>
 
-          {/* Floating Hearts Animation */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ 
-                  opacity: 0, 
-                  x: 0,
-                  y: 400
-                }}
-                animate={{ 
-                  opacity: [0, 0.6, 0],
-                  y: -100,
-                  x: Math.sin(i * 1.5) * 80,
-                }}
-                transition={{
-                  duration: 8 + i,
-                  repeat: Infinity,
-                  delay: i * 1.2,
-                  ease: "linear"
-                }}
-                className="absolute text-accent/20 text-2xl"
-                style={{ left: `${15 + i * 15}%` }}
-              >
-                ♥
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Content with 3D Transform */}
-          <motion.div
-            style={{ 
-              opacity,
-              scale,
-              rotateX,
-              transformStyle: "preserve-3d"
-            }}
-            className="relative z-10 text-center px-6"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="inline-block px-8 md:px-16 py-10 md:py-14 border border-accent/30 bg-card-bg/30 backdrop-blur-sm relative"
-              style={{ transformStyle: "preserve-3d", transform: "translateZ(0)" }}
-            >
-              {/* Corner Decorations */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-accent" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-accent" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-accent" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-accent" />
-
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 1 }}
-                className="block text-xs tracking-[0.4em] uppercase text-accent mb-5"
-              >
-                You Are Invited To The Wedding Of
-              </motion.span>
-
-              <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-normal leading-tight mb-8" style={{ transformStyle: "preserve-3d" }}>
-                <motion.span
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8, duration: 1.2 }}
-                  className="block"
-                >
-                  <LetterReveal
-                    text="Sophia"
-                    direction="left-to-right"
-                    delay={0.6}
-                    duration={0.08}
-                    letterClassName="text-5xl md:text-7xl lg:text-8xl"
-                  />
-                </motion.span>
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 2, duration: 1 }}
-                  className="block font-script text-4xl md:text-6xl text-accent my-2"
-                >
-                  &
-                </motion.span>
-                <motion.span
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 2.8, duration: 1.2 }}
-                  className="block"
-                >
-                  <LetterReveal
-                    text="Alexander"
-                    direction="right-to-left"
-                    delay={2.4}
-                    duration={0.08}
-                    letterClassName="text-5xl md:text-7xl lg:text-8xl"
-                  />
-                </motion.span>
-              </h1>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 4, duration: 1 }}
-                className="flex items-center justify-center gap-5 mb-4"
-              >
-                <span className="w-16 h-px bg-gradient-to-r from-transparent to-accent" />
-                <span className="text-lg md:text-xl font-heading tracking-widest text-text-secondary">
-                  September 15, 2026
-                </span>
-                <span className="w-16 h-px bg-gradient-to-l from-transparent to-accent" />
-              </motion.div>
-
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 4.5, duration: 1 }}
-                className="text-sm text-text-secondary tracking-wide"
-              >
-                Grand Ballroom, Ritz Carlton • New York City
-              </motion.p>
-
-              {/* Countdown Timer */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 5, duration: 1 }}
-                className="mt-10 pt-8 border-t border-accent/20"
-              >
-                <p className="text-xs tracking-[0.3em] uppercase text-text-secondary mb-4">
-                  Countdown to Our Big Day
-                </p>
-                <div className="flex justify-center gap-3 md:gap-6">
-                  {[
-                    { value: countdown.days, label: "Days" },
-                    { value: countdown.hours, label: "Hours" },
-                    { value: countdown.minutes, label: "Minutes" },
-                    { value: countdown.seconds, label: "Seconds" },
-                  ].map((item, index) => (
-                    <div key={index} className="text-center">
-                      <motion.div
-                        key={`${item.label}-${item.value}`}
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="w-14 md:w-16 h-14 md:h-16 bg-accent/10 rounded-lg flex items-center justify-center mb-2"
-                      >
-                        <span className="font-heading text-xl md:text-2xl text-accent">
-                          {String(item.value).padStart(2, '0')}
-                        </span>
-                      </motion.div>
-                      <span className="text-xs tracking-widest text-text-secondary uppercase">
-                        {item.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 5.5, duration: 1 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
-          >
-            <span className="text-xs tracking-[0.3em] uppercase text-text-secondary">
-              Scroll
+        {/* Invitation inside the arch */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-[12%] pt-[6cqh] pb-[4cqh]">
+          <RevealLine revealed={revealed} baseDelay={baseDelay} step={0}>
+            <span className="block text-[10px] sm:text-xs tracking-[0.35em] uppercase text-accent text-balance">
+              You are invited to the wedding of
             </span>
-            <div className="w-5 h-8 border border-accent/50 rounded-full flex justify-center pt-2">
-              <motion.div
-                animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-1 h-2 bg-accent rounded-full"
-              />
+          </RevealLine>
+
+          <h1 className="font-script font-normal text-text-primary leading-[1.05] my-[2.5cqh] text-[min(14cqw,7.5cqh)]">
+            <RevealLine revealed={revealed} baseDelay={baseDelay} step={1}>Sophia</RevealLine>
+            <RevealLine revealed={revealed} baseDelay={baseDelay} step={1.5} className="text-accent text-[0.6em] my-1">
+              &amp;
+            </RevealLine>
+            <RevealLine revealed={revealed} baseDelay={baseDelay} step={2}>Alexander</RevealLine>
+          </h1>
+
+          <RevealLine revealed={revealed} baseDelay={baseDelay} step={3} className="flex items-center justify-center gap-3 mb-2">
+            <span className="w-8 h-px bg-gradient-to-r from-transparent to-accent" />
+            <span className="font-heading text-lg tracking-[0.2em] text-text-secondary">
+              September 15, 2026
+            </span>
+            <span className="w-8 h-px bg-gradient-to-l from-transparent to-accent" />
+          </RevealLine>
+
+          <RevealLine revealed={revealed} baseDelay={baseDelay} step={3.4}>
+            <p className="text-[11px] tracking-wide text-text-secondary">
+              Grand Ballroom, Ritz Carlton • New York City
+            </p>
+          </RevealLine>
+
+          <RevealLine revealed={revealed} baseDelay={baseDelay} step={4} className="mt-[4cqh]">
+            <div className="flex justify-center gap-2.5">
+              {[
+                { value: countdown.days, label: "Days" },
+                { value: countdown.hours, label: "Hours" },
+                { value: countdown.minutes, label: "Mins" },
+                { value: countdown.seconds, label: "Secs" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="w-14 py-2 bg-white/45 backdrop-blur-[2px] border border-accent/20 rounded-md"
+                >
+                  <span className="block font-heading text-2xl leading-none text-accent">
+                    {String(item.value).padStart(2, "0")}
+                  </span>
+                  <span className="block mt-1 text-[9px] tracking-[0.2em] uppercase text-text-secondary">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
             </div>
-          </motion.div>
-        </>
-      )}
+          </RevealLine>
+        </div>
+
+        {/* Scroll hint, once the doors are gone */}
+        <motion.div
+          initial={false}
+          animate={{ opacity: done ? 1 : 0 }}
+          transition={{ duration: 1, delay: done ? 0.8 : 0 }}
+          className="absolute inset-x-0 flex flex-col items-center gap-2 pointer-events-none"
+          style={{ bottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
+        >
+          <span className="text-[10px] tracking-[0.3em] uppercase text-text-secondary">Scroll</span>
+          <div className="w-5 h-8 border border-accent/50 rounded-full flex justify-center pt-2">
+            <motion.div
+              animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-1 h-2 bg-accent rounded-full"
+            />
+          </div>
+        </motion.div>
+      </div>
     </section>
+  );
+}
+
+// Each line rises into place one after another as the doors part.
+function RevealLine({
+  step,
+  revealed,
+  baseDelay,
+  children,
+  className = "",
+}: {
+  step: number;
+  revealed: boolean;
+  baseDelay: number;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={false}
+      animate={revealed ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 16, filter: "blur(6px)" }}
+      transition={{ duration: 1.1, delay: revealed ? baseDelay + step * 0.3 : 0, ease: EASE_SOFT }}
+    >
+      {children}
+    </motion.div>
   );
 }

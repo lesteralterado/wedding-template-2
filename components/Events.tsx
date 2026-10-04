@@ -27,7 +27,22 @@ export default function Events() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="events" className="py-24 md:py-32 relative bg-gradient-to-b from-background via-card-bg/30 to-background" style={{ perspective: "1000px" }}>
+    // Garland hangs from the top; the header sits in the open space beneath its centre.
+    // The gradient softens where the artwork's bottom edge meets the plain cream.
+    <section
+      id="events"
+      className="pt-[34vw] pb-24 md:pb-32 relative"
+      style={{
+        perspective: "1000px",
+        backgroundColor: "#f4eadc",
+        backgroundImage:
+          // First layer (drawn on top) fades into the page background so the next section starts seamlessly.
+          "linear-gradient(to bottom, rgba(248, 246, 243, 0), #f8f6f3), linear-gradient(to top, #f4eadc, rgba(244, 234, 220, 0) 35%), url('/sections/floral-garland-top.webp')",
+        backgroundSize: "100% 10rem, 100% 150vw, 100% auto",
+        backgroundPosition: "bottom, top, top",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-6">
         <SectionHeader tag="Join Us" title="Wedding Events" />
 
@@ -88,7 +103,7 @@ function EventCard({
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       transition={{ duration: 1, delay: index * 0.2, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -10 }}
-      className="bg-card-bg/50 border border-accent/10 p-10 text-center relative overflow-hidden group cursor-pointer"
+      className="bg-card-bg/70 backdrop-blur-sm border border-accent/10 p-10 text-center relative overflow-hidden group cursor-pointer"
     >
       {/* Top Line Animation */}
       <motion.div

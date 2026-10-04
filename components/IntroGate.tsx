@@ -18,40 +18,53 @@ const SEAL = { left: "49.7%", top: "52.75%", size: "26%" };
 
 // Heavy, door-like ease: slow to start, glides to a stop.
 const EASE_DOOR = [0.65, 0, 0.2, 1] as const;
-const EASE_SOFT = [0.22, 1, 0.36, 1] as const;
+export const EASE_SOFT = [0.22, 1, 0.36, 1] as const;
 
 const DOOR_DURATION = 2.4;
 const SEAL_BREAK = 0.45; // pause on the seal before the doors move
-const HOLD_AFTER_OPEN = 2.4; // time to read the names before entering the site
 
-type Phase = "loading" | "closed" | "opening" | "open";
+/** Seconds after the tap when content behind the doors should start appearing. */
+export const REVEAL_DELAY = SEAL_BREAK + 1.2;
 
-const IntroContext = createContext(true);
+/**
+ * Shared by the doors and the Hero so the doors sit exactly over the Hero's arch:
+ * full screen on phones, a phone-shaped column on tablets and desktops.
+ */
+export const STAGE_CLASS = "relative mx-auto h-full w-full md:w-auto md:aspect-[736/1308]";
 
-/** True once the guest has opened the doors and the intro has left the screen. */
-export const useIntroDone = () => useContext(IntroContext);
+type Phase = "loading" | "closed" | "opening";
+
+const IntroContext = createContext({ revealed: true, done: true });
+
+/**
+ * `revealed`: the guest tapped and the doors are opening.
+ * `done`: the doors are gone and the page can scroll.
+ */
+export const useIntro = () => useContext(IntroContext);
 
 export function IntroProvider({ children }: { children: ReactNode }) {
+  const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState(false);
+  const reveal = useCallback(() => setRevealed(true), []);
   const finish = useCallback(() => setDone(true), []);
 
   return (
-    <IntroContext.Provider value={done}>
+    <IntroContext.Provider value={{ revealed, done }}>
       {children}
-      <AnimatePresence>{!done && <IntroGate onFinish={finish} />}</AnimatePresence>
+      {!done && <IntroGate onReveal={reveal} onFinish={finish} />}
     </IntroContext.Provider>
   );
 }
 
-function IntroGate({ onFinish }: { onFinish: () => void }) {
+function IntroGate({ onReveal, onFinish }: { onReveal: () => void; onFinish: () => void }) {
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState<Phase>("loading");
   const loaded = useRef(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const isOpening = phase === "opening" || phase === "open";
+  const isOpening = phase === "opening";
 
-  // Lock the page behind the gate and always start the site from the top.
+  // Lock the page behind the doors and always start the site from the top.
   useEffect(() => {
     const html = document.documentElement;
     const previous = html.style.overflow;
@@ -72,21 +85,15 @@ function IntroGate({ onFinish }: { onFinish: () => void }) {
 
   const handleLoad = () => {
     loaded.current += 1;
-    if (loaded.current >= 3) setPhase((p) => (p === "loading" ? "closed" : p));
+    if (loaded.current >= 2) setPhase((p) => (p === "loading" ? "closed" : p));
   };
 
   const open = () => {
-    if (phase === "open") {
-      onFinish();
-      return;
-    }
     if (phase !== "closed") return;
     setPhase("opening");
+    onReveal();
     const doorsDone = (reduceMotion ? 0.8 : SEAL_BREAK + DOOR_DURATION) * 1000;
-    timers.current.push(
-      setTimeout(() => setPhase("open"), doorsDone),
-      setTimeout(onFinish, doorsDone + HOLD_AFTER_OPEN * 1000)
-    );
+    timers.current.push(setTimeout(onFinish, doorsDone + 100));
   };
 
   const doorTransition = reduceMotion
@@ -151,49 +158,22 @@ function IntroGate({ onFinish }: { onFinish: () => void }) {
   };
 
   return (
-    <motion.div
-      key="intro-gate"
+    <div
       role="dialog"
       aria-modal="true"
       aria-label="Wedding invitation"
-      className="fixed inset-0 z-[100] overflow-hidden bg-[#f3ece1]"
-      exit={{ opacity: 0, scale: reduceMotion ? 1 : 1.04 }}
-      transition={{ duration: 1.1, ease: EASE_SOFT }}
+      className="fixed inset-0 z-[100] overflow-hidden"
     >
-      {/* Larger screens: blurred arch fills the space around the portrait stage */}
-      <div aria-hidden className="absolute inset-0 hidden md:block">
-        <Image
-          src="/intro/arch.webp"
-          alt=""
-          fill
-          unoptimized
-          sizes="100vw"
-          className="object-cover scale-110 blur-2xl opacity-80"
-        />
-        <div className="absolute inset-0 bg-[#f3ece1]/40" />
-      </div>
+      {/* Cream curtain while the artwork loads; afterwards the Hero shows around the stage */}
+      <motion.div
+        aria-hidden
+        className="absolute inset-0 bg-[#f3ece1]"
+        initial={false}
+        animate={{ opacity: phase === "loading" ? 1 : 0 }}
+        transition={{ duration: 1.2, ease: EASE_SOFT }}
+      />
 
-      {/* Stage: full screen on phones, a phone-shaped column on tablets and desktops */}
-      <div className="relative mx-auto h-full w-full md:w-auto md:aspect-[736/1308] md:shadow-[0_0_80px_rgba(59,47,32,0.25)] [container-type:size]">
-        {/* Background arch, revealed behind the doors */}
-        <motion.div
-          className="absolute inset-0 overflow-hidden"
-          initial={false}
-          animate={{ scale: isOpening && !reduceMotion ? 1 : 1.12 }}
-          transition={{ duration: DOOR_DURATION + 0.6, delay: SEAL_BREAK, ease: EASE_SOFT }}
-        >
-          <Image
-            src="/intro/arch.webp"
-            alt=""
-            fill
-            preload
-            unoptimized
-            sizes="100vw"
-            onLoad={handleLoad}
-            className="object-cover"
-          />
-        </motion.div>
-
+      <div className={`${STAGE_CLASS} [container-type:size]`}>
         {/* Warm light spilling through the gap as the doors part */}
         <motion.div
           aria-hidden
@@ -203,86 +183,52 @@ function IntroGate({ onFinish }: { onFinish: () => void }) {
           transition={{ duration: DOOR_DURATION, delay: SEAL_BREAK + 0.2, ease: "easeInOut", times: [0, 0.35, 1] }}
         />
 
-        {/* Names inside the arch */}
-        <div className="absolute inset-0 flex items-center justify-center px-[14%] pb-[6%] pointer-events-none">
-          <div className="text-center">
-            {[
-              <span key="tag" className="block text-[10px] sm:text-xs tracking-[0.35em] uppercase text-accent">
-                You are invited to the wedding of
-              </span>,
-              <span key="names" className="block font-script text-[clamp(2.75rem,13cqw,4.5rem)] leading-[1.1] text-text-primary my-4">
-                Sophia
-                <span className="block text-accent text-[0.6em] my-1">&amp;</span>
-                Alexander
-              </span>,
-              <span key="date" className="flex items-center justify-center gap-3 font-heading text-lg tracking-[0.2em] text-text-secondary">
-                <span className="w-8 h-px bg-gradient-to-r from-transparent to-accent" />
-                15 · 09 · 2026
-                <span className="w-8 h-px bg-gradient-to-l from-transparent to-accent" />
-              </span>,
-            ].map((line, i) => (
-              <motion.div
-                key={i}
-                initial={false}
-                animate={isOpening ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 16, filter: "blur(6px)" }}
-                transition={{
-                  duration: 1.1,
-                  delay: isOpening ? (reduceMotion ? 0.4 : SEAL_BREAK + 1.5) + i * 0.3 : 0,
-                  ease: EASE_SOFT,
-                }}
-              >
-                {line}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
         {/* Door artwork, scaled like object-cover so the seal hotspot stays aligned */}
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[max(100cqw,calc(100cqh*736/1308))]"
           style={{ aspectRatio: ART_RATIO }}
         >
-        <motion.div
-          className="absolute inset-0"
-          style={{ perspective: "1400px" }}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={phase === "loading" ? { opacity: 0, scale: 1.04 } : { opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: EASE_SOFT }}
-        >
-          {door("left")}
-          {door("right")}
-
-          {/* Seal: idle pulse, then a gold ring as it "breaks" */}
-          <div
-            aria-hidden
-            className="absolute -translate-x-1/2 -translate-y-1/2 aspect-square pointer-events-none"
-            style={{ left: SEAL.left, top: SEAL.top, width: SEAL.size }}
+          <motion.div
+            className="absolute inset-0"
+            style={{ perspective: "1400px" }}
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={phase === "loading" ? { opacity: 0, scale: 1.04 } : { opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: EASE_SOFT }}
           >
-            {phase === "closed" && (
-              <motion.span
-                className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(232,213,168,0.7)_0%,rgba(232,213,168,0)_70%)]"
-                animate={{ scale: [0.9, 1.35, 0.9], opacity: [0.4, 0.9, 0.4] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-              />
-            )}
-            {isOpening && !reduceMotion && (
-              <>
+            {door("left")}
+            {door("right")}
+
+            {/* Seal: idle pulse, then a gold ring as it "breaks" */}
+            <div
+              aria-hidden
+              className="absolute -translate-x-1/2 -translate-y-1/2 aspect-square pointer-events-none"
+              style={{ left: SEAL.left, top: SEAL.top, width: SEAL.size }}
+            >
+              {phase === "closed" && (
                 <motion.span
-                  className="absolute inset-0 rounded-full border-2 border-accent-light"
-                  initial={{ scale: 0.7, opacity: 0.9 }}
-                  animate={{ scale: 2.6, opacity: 0 }}
-                  transition={{ duration: 0.9, ease: "easeOut" }}
+                  className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(232,213,168,0.7)_0%,rgba(232,213,168,0)_70%)]"
+                  animate={{ scale: [0.9, 1.35, 0.9], opacity: [0.4, 0.9, 0.4] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                 />
-                <motion.span
-                  className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(255,250,235,1)_0%,rgba(255,240,200,0)_65%)]"
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1.8, opacity: [0, 1, 0] }}
-                  transition={{ duration: 0.7, ease: "easeOut" }}
-                />
-              </>
-            )}
-          </div>
-        </motion.div>
+              )}
+              {isOpening && !reduceMotion && (
+                <>
+                  <motion.span
+                    className="absolute inset-0 rounded-full border-2 border-accent-light"
+                    initial={{ scale: 0.7, opacity: 0.9 }}
+                    animate={{ scale: 2.6, opacity: 0 }}
+                    transition={{ duration: 0.9, ease: "easeOut" }}
+                  />
+                  <motion.span
+                    className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(255,250,235,1)_0%,rgba(255,240,200,0)_65%)]"
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1.8, opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                  />
+                </>
+              )}
+            </div>
+          </motion.div>
         </div>
 
         {/* Hint */}
@@ -310,11 +256,11 @@ function IntroGate({ onFinish }: { onFinish: () => void }) {
         <button
           type="button"
           onClick={open}
-          aria-label={phase === "open" ? "Enter the website" : "Open the invitation"}
+          aria-label="Open the invitation"
           className="absolute inset-0 z-10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
           style={{ WebkitTapHighlightColor: "transparent" }}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }

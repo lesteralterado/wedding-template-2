@@ -22,7 +22,21 @@ const stories = [
 
 export default function Story() {
   return (
-    <section id="story" className="py-24 md:py-32 relative" style={{ perspective: "1000px" }}>
+    // Floral border sits along the bottom; extra bottom padding keeps the text above the flowers.
+    // The gradient softens where the artwork's top edge meets the plain cream.
+    <section
+      id="story"
+      className="pt-24 md:pt-32 pb-[38vw] relative"
+      style={{
+        perspective: "1000px",
+        backgroundColor: "#f4eadc",
+        backgroundImage:
+          "linear-gradient(to bottom, #f4eadc, rgba(244, 234, 220, 0) 35%), url('/sections/floral-border-bottom.webp')",
+        backgroundSize: "100% 150vw, 100% auto",
+        backgroundPosition: "bottom, bottom",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       {/* Top Line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 

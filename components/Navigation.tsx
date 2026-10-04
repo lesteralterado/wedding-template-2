@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIntro } from "./IntroGate";
 
 const navLinks = [
   { name: "Our Story", href: "#story" },
@@ -14,6 +15,7 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const { done: introDone } = useIntro();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,14 +61,19 @@ export default function Navigation() {
         right: 0,
         zIndex: 50
       }}
-      animate={{ 
-        y: 0,
-        scale: 1,
-        opacity: 1,
-        position: "fixed",
-        top: 0
-      }}
-      transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1], delay: 2.5 }}
+      // Stay hidden until the guest has walked through the doors
+      animate={
+        introDone
+          ? {
+              y: 0,
+              scale: 1,
+              opacity: 1,
+              position: "fixed",
+              top: 0,
+            }
+          : undefined
+      }
+      transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1], delay: 0.6 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-background/95 backdrop-blur-xl py-4 shadow-lg shadow-black/20"
