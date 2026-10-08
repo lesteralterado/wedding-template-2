@@ -133,3 +133,56 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ---------- Couple moment: living-photo loops ---------- */
+
+/* The meadow drifts very slowly, like a camera on a slider */
+@keyframes moment-drift {
+  0%, 100% { transform: scale(1) translate3d(0, 0, 0); }
+  50% { transform: scale(1.04) translate3d(-1%, -0.5%, 0); }
+}
+
+/* Barely-there breathing so the couple never feels frozen */
+@keyframes moment-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -0.35%, 0) scale(1.006); }
+}
+
+/* Golden-hour sun glow that softly flickers and wanders */
+@keyframes moment-sun {
+  0%, 100% { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
+  35% { opacity: 0.8; transform: translate3d(-2%, 1%, 0) scale(1.06); }
+  70% { opacity: 0.65; transform: translate3d(1%, -1%, 0) scale(0.98); }
+}
+
+/* Pollen rising through the light */
+@keyframes moment-pollen {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  15%, 80% { opacity: var(--o, 0.7); }
+  100% { transform: translate3d(var(--dx, 20px), -140px, 0); opacity: 0; }
+}
+
+/* Film grain that jumps between positions: each step reads as a new film frame */
+@keyframes moment-grain {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(-4%, 3%); }
+  33% { transform: translate(3%, -5%); }
+  50% { transform: translate(-6%, -2%); }
+  67% { transform: translate(5%, 4%); }
+  83% { transform: translate(-2%, 6%); }
+  100% { transform: translate(0, 0); }
+}
+
+.moment-drift { animation: moment-drift 22s ease-in-out infinite; }
+.moment-breathe { animation: moment-breathe 7s ease-in-out infinite; transform-origin: 57% 100%; }
+.moment-sun { animation: moment-sun 9s ease-in-out infinite; }
+.moment-pollen { animation: moment-pollen var(--d, 9s) ease-in-out var(--delay, 0s) infinite; }
+.moment-grain { animation: moment-grain 0.7s steps(1, end) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .moment-drift,
+  .moment-breathe,
+  .moment-sun,
+  .moment-pollen,
+  .moment-grain { animation: none; }
+}

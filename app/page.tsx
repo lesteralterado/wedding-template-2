@@ -1,5 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
+import CoupleMoment from "@/components/CoupleMoment";
 import Story from "@/components/Story";
 import Events from "@/components/Events";
 import Gallery from "@/components/Gallery";
@@ -13,6 +14,7 @@ export default function Home() {
       <main className="bg-background min-h-screen">
         <Navigation />
         <Hero />
+        <CoupleMoment />
         <Story />
         <Events />
         <Gallery />
